@@ -4,6 +4,7 @@ import morgan from 'morgan';
 import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import pool from './config/db.js';
 
 // Load environment variables
 dotenv.config();
@@ -61,6 +62,16 @@ app.use((err, req, res, next) => {
 });
 
 // Start Server
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
   console.log(`Server running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`);
+  
+  // Test database connection
+  try {
+    const res = await pool.query('SELECT NOW()');
+    console.log(`Database connection test successful. Current time on DB: ${res.rows[0].now}`);
+  } catch (err) {
+    console.error('Database connection test failed. Verify DATABASE_URL and password in .env.');
+    console.error(`Error: ${err.message}`);
+  }
 });
+
